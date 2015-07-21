@@ -1,9 +1,85 @@
 $(document).ready(function(){
-  
-  //write your solution here...
+
+    $('#search').click(function() {
+    var query = $('#keyword').val();
+    console.log(query);
+
+    fetchJSON(query);
+
+    });
     
 });
 
+
+function fetchJSON(query) {
+    var url = 'https://api.flickr.com/services/rest/?format=json&method=flickr.photos.search&api_key=2fd41b49fedfd589dc265350521ab539&tags='+query+'&jsoncallback=?';
+
+    $.getJSON(url).done(function(data) {
+        displayPhotos(data);
+    });
+}
+
+function displayPhotos(data) {
+    var photoData = data.photos.photo;
+
+    var photos = getResults(photoData);
+
+    var html = buildTags(photos);
+
+    $('#feed').html(html);
+
+    buildFancyBox();
+}
+
+function buildFancyBox() {
+    $('.fancybox').fancybox({
+        openEffect: 'none',
+        closeEffect: 'none'
+    });
+}
+
+function getResults(photos) {
+    var results = [];
+    var url;
+    var photo;
+
+    for (var i = 0; i < photos.length; i++) {
+        photo = photos[i];
+        url = [
+        'http://farm',
+        photo.farm,
+        '.staticflickr.com/',
+        photo.server,
+        '/',
+        photo.id,
+         '_',
+         photo.secret,
+         '.jpg'
+        ];
+        url = url.join('');
+        results.push({title: photo.title, url: url});
+    };
+    return results;
+}
+
+function buildTags(photos) {
+    var tags = [];
+    var photo;
+    var tag;
+
+    for (var i = 0; i < photos.length; i++) {
+        photo = photos[i];
+        tag = '';
+        tag += '<a class="fancybox" rel="gallery1"';
+        tag += 'href="' + photo.url + '"';
+        tag += 'title="' + photo.title + '">';
+        tag += '<img src="' + photo.url + '" width="100"/>';
+        tag += '</a>';
+        tags.push(tag);
+    };
+
+    return tags.join('');
+}
 /*
 
 API url: 
